@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>呈尚策划数据统计系统</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <!-- Layui CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.9.0/css/layui.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+        
+        .logo-container {
+            margin-bottom: 20px;
+        }
+        
+        .logo-container img {
+            width: 80px;
+            height: 80px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .main-title {
+            font-size: 48px;
+            font-weight: 300;
+            margin: 20px 0 10px 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+        
+        .main-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 300;
+            margin-bottom: 0;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .project-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1890ff, #722ed1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(24,144,255,0.3);
+        }
+        
+        .card-icon i {
+            font-size: 28px;
+            color: white;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1890ff;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .card-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+        }
+        
+        .card-features li {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #52c41a;
+            font-weight: bold;
+        }
+        
+        .card-button {
+            background: linear-gradient(135deg, #1890ff, #722ed1);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(24,144,255,0.3);
+            width: 100%;
+        }
+        
+        .footer-section {
+            margin-top: 60px;
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 36px;
+            }
+            
+            .main-subtitle {
+                font-size: 16px;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .project-card {
+                padding: 30px 20px;
+            }
+            
+            .main-container {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 28px;
+            }
+            
+            .card-title {
+                font-size: 20px;
+            }
+            
+            .card-description {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 头部区域 -->
+        <div class="header-section">
+            <div class="logo-container">
+                <img src="./favicon.svg" alt="呈尚策划Logo">
+            </div>
+            <h1 class="main-title">呈尚策划数据统计系统</h1>
+            <p class="main-subtitle">专业的Excel数据分析工具集</p>
+        </div>
+        
+        <!-- 项目卡片区域 -->
+        <div class="cards-container">
+            <!-- 绩效统计模块卡片 -->
+            <div class="project-card" onclick="navigateToProject('./jixiaotongji/index.html')">
+                <div class="card-icon">
+                    <i class="layui-icon">&#xe628;</i>
+                </div>
+                <h2 class="card-title">呈尚策划绩效统计</h2>
+                <p class="card-description">
+                    针对店铺绩效数据进行分析和统计，支持Excel文件导入、多店铺批量分析、绩效计算等功能
+                </p>
+                <ul class="card-features">
+                    <li>Excel文件导入和解析</li>
+                    <li>多店铺数据批量分析</li>
+                    <li>自动计算结算金额和绩效</li>
+                    <li>可配置绩效百分比</li>
+                    <li>结果数据导出为Excel</li>
+                </ul>
+                <button class="card-button">
+                    <i class="layui-icon" style="margin-right: 8px;">&#xe65f;</i>
+                    进入绩效统计
+                </button>
+            </div>
+            
+            <!-- 服务商统计模块卡片 -->
+            <div class="project-card" onclick="navigateToProject('./fuwushangtongji/index.html')">
+                <div class="card-icon">
+                    <i class="layui-icon">&#xe62c;</i>
+                </div>
+                <h2 class="card-title">呈尚策划服务商统计</h2>
+                <p class="card-description">
+                    对服务商结算数据进行多维度分析，提供数据可视化图表、Excel导出等功能
+                </p>
+                <ul class="card-features">
+                    <li>每日店铺数量和结算额统计</li>
+                    <li>店铺结算总额和天数分析</li>
+                    <li>ECharts可视化图表</li>
+                    <li>多格式数据导出</li>
+                    <li>图表保存为图片</li>
+                </ul>
+                <button class="card-button">
+                    <i class="layui-icon" style="margin-right: 8px;">&#xe65f;</i>
+                    进入服务商统计
+                </button>
+            </div>
+        </div>
+        
+        <!-- 页脚区域 -->
+        <div class="footer-section">
+            <p>© 2025 呈尚策划 - 专业数据分析解决方案</p>
+        </div>
+    </div>
+    
+    <!-- Layui JS -->
+    <script src="https://cdn.staticfile.org/layui/2.9.0/layui.js"></script>
+    <script>
+        // 页面导航函数
+        function navigateToProject(url) {
+            window.location.href = url;
+        }
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载完成，无需动画
+        });
+        
+        // 键盘导航支持
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1') {
+                navigateToProject('./jixiaotongji/index.html');
+            } else if (e.key === '2') {
+                navigateToProject('./fuwushangtongji/index.html');
+            }
+        });
+    </script>
+</body>
+</html>

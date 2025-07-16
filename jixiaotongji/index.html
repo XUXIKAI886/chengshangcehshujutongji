@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>呈尚策划绩效统计</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <!-- Layui CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.9.0/css/layui.css">
+    <!-- 引入 XLSX -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        .layui-layout-admin .layui-body {
+            bottom: 0;
+        }
+        .chart-area {
+            height: 400px;
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .chart-area:hover {
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.15);
+        }
+        .preview-table-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 15px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        .info-item {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .info-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px 0 rgba(0,0,0,0.15);
+        }
+        .info-label {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #1890ff;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .layui-card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .layui-card-header {
+            font-size: 16px;
+            font-weight: 500;
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        .layui-card-body {
+            padding: 20px;
+            background: #fff;
+        }
+        .layui-btn {
+            border-radius: 4px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.015);
+        }
+        .layui-btn-primary:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        .layui-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* 修改顶部栏样式 */
+        .layui-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .layui-logo {
+            flex: 0 0 200px;
+            color: #fff;
+            font-size: 18px;
+        }
+        .vip-tip-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .vip-tip {
+            color: #faad14;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(250,173,20,0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .layui-nav.layui-layout-right {
+            flex: 0 0 auto;
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item {
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn {
+            height: 32px;
+            line-height: 32px;
+            padding: 0 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-top: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+        .result-table {
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .result-table .layui-table {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部 -->
+        <div class="layui-header">
+            <div class="layui-logo">呈尚策划绩效统计</div>
+            <div class="vip-tip-container">
+                <!-- 移除会员限制提示 -->
+            </div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="../index.html" class="layui-btn layui-btn-primary">返回首页</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="layui-body">
+            <div class="layui-fluid">
+                <!-- 数据导入区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">数据导入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-form">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                                    <button class="layui-btn" onclick="document.getElementById('fileInput').click()">
+                                        <i class="layui-icon">&#xe67c;</i> 选择文件
+                                    </button>
+                                </div>
+                                <div class="layui-inline">
+                                    <textarea id="shopNames" placeholder="请输入店铺名称，每行一个" class="layui-textarea" style="width: 300px; height: 100px;"></textarea>
+                                </div>
+                                <div class="layui-inline">
+                                    <input type="number" id="performancePercent" placeholder="请输入绩效百分比" class="layui-input" style="width: 150px;">
+                                </div>
+                                <div class="layui-inline">
+                                    <button class="layui-btn" id="analyzeBtn" disabled>
+                                        <i class="layui-icon">&#xe628;</i> 开始分析
+                                    </button>
+                                </div>
+                                <div class="layui-inline">
+                                    <button class="layui-btn" id="exportBtn" disabled>
+                                        <i class="layui-icon">&#xe67d;</i> 导出结果
+                                    </button>
+                                </div>
+                                <div class="layui-inline">
+                                    <button class="layui-btn layui-btn-primary" id="resetBtn">
+                                        <i class="layui-icon">&#xe669;</i> 重置
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据预览 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">数据预览</div>
+                    <div class="layui-card-body">
+                        <div id="previewTable" class="preview-table-container"></div>
+                    </div>
+                </div>
+
+                <!-- 分析结果 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">分析结果</div>
+                    <div class="layui-card-body">
+                        <div id="resultTable" class="result-table"></div>
+                        <div id="performanceResult" class="info-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layui JS -->
+    <script src="https://cdn.staticfile.org/layui/2.9.0/layui.js"></script>
+    <!-- 业务逻辑 -->
+    <script src="assets/js/main.js"></script>
+    <script>
+        layui.use(['layer'], function(){
+            var layer = layui.layer;
+            
+            // GitHub Pages版本 - 使用本地存储模拟登录状态
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            
+            if (!isLoggedIn) {
+                // 首次访问时，显示欢迎信息并设置登录状态
+                layer.open({
+                    type: 1,
+                    title: '呈尚策划绩效统计系统',
+                    closeBtn: 0,
+                    area: ['400px', '240px'],
+                    shade: 0.8,
+                    id: 'LAY_welcomeMsg',
+                    btn: ['开始使用'],
+                    btnAlign: 'c',
+                    moveType: 1,
+                    content: `<div style="padding: 20px; line-height: 22px; text-align: center;">
+                        <p style="margin-bottom: 15px;">欢迎使用呈尚策划绩效统计系统</p>
+                        <p style="color: #1890ff; font-size: 14px;">专业的数据分析工具</p>
+                    </div>`,
+                    yes: function(index){
+                        localStorage.setItem('isLoggedIn', 'true');
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
+
+
