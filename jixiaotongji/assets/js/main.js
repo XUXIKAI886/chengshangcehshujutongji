@@ -25,7 +25,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 监听文件选择
         fileInput.addEventListener('change', function() {
-            analyzeBtn.disabled = !this.files.length;
+            const hasFile = this.files.length > 0;
+            analyzeBtn.disabled = !hasFile;
+            
+            if (hasFile) {
+                const file = this.files[0];
+                const fileName = file.name;
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                const isXls = fileName.toLowerCase().endsWith('.xls');
+                const isXlsx = fileName.toLowerCase().endsWith('.xlsx');
+                
+                if (isXls || isXlsx) {
+                    const formatType = isXls ? 'XLS' : 'XLSX';
+                    layui.layer.msg(`已选择${formatType}文件: ${fileName} (${fileSize}MB)`, {icon: 1, time: 2000});
+                } else {
+                    layui.layer.msg('请选择Excel文件格式（.xls 或 .xlsx）', {icon: 2});
+                    this.value = '';
+                    analyzeBtn.disabled = true;
+                }
+            }
         });
     });
 });
@@ -40,6 +58,20 @@ async function startAnalysis() {
             return;
         }
 
+        // 检查文件格式
+        const fileName = file.name.toLowerCase();
+        const isValidFormat = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+        if (!isValidFormat) {
+            layui.layer.msg('请选择有效的Excel文件格式（.xlsx 或 .xls）！');
+            return;
+        }
+
+        // 检查文件大小（限制为10MB）
+        if (file.size > 10 * 1024 * 1024) {
+            layui.layer.msg('文件大小不能超过10MB！');
+            return;
+        }
+
         // 检查店铺名称输入
         const shops = shopNames.value.trim().split('\n').filter(shop => shop.trim());
         if (shops.length === 0) {
@@ -47,40 +79,92 @@ async function startAnalysis() {
             return;
         }
 
-        // 读取并解析Excel文件
-        const data = await readExcelFile(file);
-        if (!data) return;
+        // 显示加载提示
+        const loadingIndex = layui.layer.load(1, {
+            shade: [0.1, '#000']
+        });
 
-        // 分析数据
-        analyzeData(data, shops);
+        try {
+            // 读取并解析Excel文件
+            const data = await readExcelFile(file);
+            if (!data) return;
+
+            // 分析数据
+            analyzeData(data, shops);
+            
+            layui.layer.msg('分析完成！', {icon: 1});
+        } finally {
+            layui.layer.close(loadingIndex);
+        }
 
     } catch (error) {
         console.error('分析过程中发生错误:', error);
-        layui.layer.msg('分析过程中发生错误: ' + error.message);
+        layui.layer.msg('分析过程中发生错误: ' + error.message, {icon: 2});
     }
 }
 
 // 读取Excel文件
 function readExcelFile(file) {
     return new Promise((resolve, reject) => {
+        // 检查XLSX库是否已加载
+        if (typeof XLSX === 'undefined') {
+            reject(new Error('Excel处理库未加载，请刷新页面重试'));
+            return;
+        }
+        
         const reader = new FileReader();
         
         reader.onload = function(e) {
             try {
                 const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
                 
-                // 获取第一个工作表
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                
-                // 转换为JSON数据,跳过第一行
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-                    range: 1,  // 从第二行开始
-                    header: ["日期", "商家名称", "门店ID", "结算周期", "费用类型", "结算金额(元)", "扣费说明"]
+                // 使用更宽松的选项来支持xls和xlsx格式
+                const workbook = XLSX.read(data, { 
+                    type: 'array',
+                    cellDates: true,
+                    cellNF: false,
+                    cellText: false
                 });
                 
+                // 检查工作簿是否有效
+                if (!workbook || !workbook.SheetNames || workbook.SheetNames.length === 0) {
+                    throw new Error('Excel文件格式不正确或文件为空');
+                }
+                
+                // 获取第一个工作表
+                const firstSheetName = workbook.SheetNames[0];
+                const firstSheet = workbook.Sheets[firstSheetName];
+                
+                if (!firstSheet) {
+                    throw new Error('无法读取Excel工作表');
+                }
+                
+                // 先获取原始数据以检查内容
+                const rawData = XLSX.utils.sheet_to_json(firstSheet, { 
+                    header: 1,  // 使用数组格式
+                    defval: ''
+                });
+                
+                if (!rawData || rawData.length < 2) {
+                    throw new Error('Excel文件内容为空或只有标题行');
+                }
+                
+                // 转换为JSON数据,跳过第一行（标题行）
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
+                    range: 1,  // 从第二行开始
+                    header: ["日期", "商家名称", "门店ID", "结算周期", "费用类型", "结算金额(元)", "扣费说明"],
+                    defval: ''
+                });
+                
+                if (!jsonData || jsonData.length === 0) {
+                    throw new Error('Excel文件中没有有效的数据行');
+                }
+                
+                console.log(`成功读取Excel文件，共${jsonData.length}行数据`);
                 resolve(jsonData);
+                
             } catch (error) {
+                console.error('Excel解析错误:', error);
                 reject(new Error('Excel文件解析失败: ' + error.message));
             }
         };
