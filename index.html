@@ -58,9 +58,9 @@
         
         .cards-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            max-width: 1000px;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 25px;
+            max-width: 1600px;
             width: 100%;
         }
         
@@ -220,7 +220,29 @@
                     进入绩效统计
                 </button>
             </div>
-            
+
+            <!-- 门店ID统计专业版卡片 -->
+            <div class="project-card" onclick="navigateToProject('./mendianid-pro/index.html')">
+                <div class="card-icon">
+                    <i class="layui-icon">&#xe857;</i>
+                </div>
+                <h2 class="card-title">呈尚策划门店ID统计专业版</h2>
+                <p class="card-description">
+                    全新设计的专业级门店ID统计系统，提供更强大的数据分析和可视化功能
+                </p>
+                <ul class="card-features">
+                    <li>🎨 现代化UI设计和交互体验</li>
+                    <li>📊 实时数据可视化图表分析</li>
+                    <li>📋 详细的统计报告和数据展示</li>
+                    <li>🚀 拖拽上传和批量数据处理</li>
+                    <li>💰 智能绩效计算和多维度分析</li>
+                </ul>
+                <button class="card-button" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="layui-icon" style="margin-right: 8px;">&#xe857;</i>
+                    进入专业版
+                </button>
+            </div>
+
             <!-- 服务商统计模块卡片 -->
             <div class="project-card" onclick="navigateToProject('./fuwushangtongji/index.html')">
                 <div class="card-icon">
@@ -268,6 +290,8 @@
             if (e.key === '1') {
                 navigateToProject('./jixiaotongji/index.html');
             } else if (e.key === '2') {
+                navigateToProject('./mendianid-pro/index.html');
+            } else if (e.key === '3') {
                 navigateToProject('./fuwushangtongji/index.html');
             }
         });

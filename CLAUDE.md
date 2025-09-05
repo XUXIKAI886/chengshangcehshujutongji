@@ -4,8 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-呈尚策划数据统计系统是一个基于Web的Excel数据分析工具集，包含两个核心模块：
+呈尚策划数据统计系统是一个基于Web的Excel数据分析工具集，包含三个核心模块：
 - **绩效统计模块** (`jixiaotongji/`) - 店铺绩效数据分析和统计
+- **门店ID统计模块** (`mendianidtongji/`) - 基于门店ID的精准数据分析和统计
 - **服务商统计模块** (`fuwushangtongji/`) - 服务商结算数据多维度分析
 
 ## 常用开发命令
@@ -26,6 +27,7 @@ php -S localhost:8000
 
 ### 访问地址
 - 绩效统计模块: `http://localhost:8000/jixiaotongji/`
+- 门店ID统计模块: `http://localhost:8000/mendianidtongji/`
 - 服务商统计模块: `http://localhost:8000/fuwushangtongji/`
 
 ## 技术架构
@@ -42,10 +44,22 @@ php -S localhost:8000
 #### 绩效统计模块 (`jixiaotongji/`)
 - **main.js**: 主业务逻辑，包含Excel文件处理、数据分析、结果展示和导出功能
 - **数据流程**: 文件上传 → Excel解析 → 店铺数据筛选 → 金额统计 → 绩效计算 → 结果导出
-- **核心功能**: 
+- **核心功能**:
   - `readExcelFile()` - Excel文件读取和解析
   - `analyzeData()` - 店铺数据分析和汇总
   - `calculatePerformance()` - 绩效金额计算
+
+#### 门店ID统计模块 (`mendianidtongji/`)
+- **main.js**: 主业务逻辑，基于门店ID精确匹配的数据分析系统
+- **数据流程**: 文件上传 → Excel解析 → 门店ID精确匹配 → 金额统计 → 绩效计算 → 结果导出
+- **核心功能**:
+  - `readExcelFile()` - Excel文件读取和解析
+  - `analyzeData()` - 基于门店ID的精确数据分析
+  - `calculatePerformance()` - 绩效金额计算
+- **核心特性**:
+  - 门店ID精确匹配，避免商家名称变更问题
+  - 数据匹配状态显示（匹配成功/未找到数据）
+  - 支持多门店ID批量查询
 
 #### 服务商统计模块 (`fuwushangtongji/`)
 采用模块化架构设计：

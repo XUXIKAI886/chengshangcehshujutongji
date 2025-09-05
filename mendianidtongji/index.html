@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>呈尚策划门店ID统计</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <!-- Layui CSS - 使用更可靠的CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/layui@2.9.0/dist/css/layui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.0/dist/css/layui.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.0/dist/css/layui.css"></noscript>
+    <!-- 引入 XLSX -->
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // 检查XLSX是否加载成功，如果失败则尝试备用CDN
+        window.addEventListener('load', function() {
+            if (typeof XLSX === 'undefined') {
+                console.warn('主CDN加载XLSX失败，尝试备用CDN...');
+                var script = document.createElement('script');
+                script.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
+                script.onerror = function() {
+                    console.warn('备用CDN1加载XLSX失败，尝试备用CDN2...');
+                    var script2 = document.createElement('script');
+                    script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                    script2.onerror = function() {
+                        console.error('所有CDN都无法加载XLSX库，请检查网络连接');
+                        if (layui && layui.layer) {
+                            layui.layer.alert('无法加载Excel处理库，请检查网络连接后刷新页面重试', {icon: 2});
+                        }
+                    };
+                    document.head.appendChild(script2);
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+    <style>
+        /* 备用样式 - 防止CDN加载失败 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* 基础按钮样式 */
+        .layui-btn, button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 2px;
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .layui-btn:hover, button:hover {
+            background-color: #40a9ff;
+        }
+
+        .layui-btn-primary {
+            background-color: transparent;
+            color: #1890ff;
+            border: 1px solid #d9d9d9;
+        }
+
+        .layui-btn-primary:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        /* 基础输入框样式 */
+        .layui-input, .layui-textarea, input, textarea {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .layui-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* 基础表格样式 */
+        .layui-table, table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .layui-table th, .layui-table td, table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .layui-table th, table th {
+            background-color: #fafafa;
+            font-weight: 600;
+        }
+
+        /* 基础卡片样式 */
+        .layui-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .layui-card-header {
+            padding: 16px 20px;
+            background-color: #fafafa;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .layui-card-body {
+            padding: 20px;
+        }
+
+        /* 基础布局样式 */
+        .layui-layout-admin .layui-body {
+            bottom: 0;
+        }
+
+        .layui-header {
+            background-color: #393D49;
+            color: white;
+            height: 60px;
+            line-height: 60px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .layui-logo {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .layui-body {
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .layui-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .layui-form-item {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .layui-inline {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        /* 文件选择按钮区域 */
+        .file-upload-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 输入区域布局 */
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 按钮组布局 */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* 文件名显示 */
+        #fileName {
+            font-size: 12px;
+            color: #52c41a;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* 改善按钮样式 */
+        .layui-btn {
+            min-width: 100px;
+            height: 36px;
+            line-height: 36px;
+            padding: 0 16px;
+        }
+
+        .layui-btn-normal {
+            background-color: #52c41a;
+        }
+
+        .layui-btn-normal:hover {
+            background-color: #73d13d;
+        }
+
+        /* 改善输入框样式 */
+        .layui-input, .layui-textarea {
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+
+        .layui-input:focus, .layui-textarea:focus {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+            outline: none;
+        }
+
+        /* 标签样式 */
+        .input-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        /* 无Layui时的备用样式 */
+        .no-layui .layui-layout {
+            display: block;
+        }
+
+        .no-layui .layui-header {
+            background-color: #393D49;
+            color: white;
+            padding: 15px 20px;
+        }
+
+        .no-layui .layui-body {
+            padding: 20px;
+        }
+
+        .no-layui .layui-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .no-layui .layui-card-header {
+            background-color: #fafafa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 600;
+        }
+
+        .no-layui .layui-card-body {
+            padding: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .input-group {
+                width: 100%;
+            }
+
+            .layui-textarea {
+                width: 100% !important;
+            }
+
+            .layui-input {
+                width: 100% !important;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .layui-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* 图标样式 - 备用方案 */
+        .layui-icon {
+            font-family: layui-icon, 'iconfont', sans-serif !important;
+            font-size: 16px;
+            font-style: normal;
+        }
+
+        /* 如果图标字体加载失败，使用文字替代 */
+        .layui-icon:before {
+            content: attr(data-text);
+        }
+
+        /* 图标备用文字 */
+        .layui-icon[data-icon="file"]:after { content: "📁"; }
+        .layui-icon[data-icon="search"]:after { content: "🔍"; }
+        .layui-icon[data-icon="export"]:after { content: "📤"; }
+        .layui-icon[data-icon="reset"]:after { content: "🔄"; }
+
+        /* 导航样式 */
+        .layui-nav {
+            background: none;
+        }
+
+        .layui-nav .layui-nav-item {
+            position: relative;
+        }
+
+        .layui-nav .layui-nav-item a {
+            color: white;
+            text-decoration: none;
+            padding: 0 16px;
+            display: block;
+        }
+        .chart-area {
+            height: 400px;
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .chart-area:hover {
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.15);
+        }
+        .preview-table-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 15px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        .info-item {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .info-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px 0 rgba(0,0,0,0.15);
+        }
+        .info-label {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #1890ff;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .layui-card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .layui-card-header {
+            font-size: 16px;
+            font-weight: 500;
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        .layui-card-body {
+            padding: 20px;
+            background: #fff;
+        }
+        .layui-btn {
+            border-radius: 4px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.015);
+        }
+        .layui-btn-primary:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        .layui-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* 修改顶部栏样式 */
+        .layui-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .layui-logo {
+            flex: 0 0 200px;
+            color: #fff;
+            font-size: 18px;
+        }
+        .vip-tip-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .vip-tip {
+            color: #faad14;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(250,173,20,0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .layui-nav.layui-layout-right {
+            flex: 0 0 auto;
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item {
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn {
+            height: 32px;
+            line-height: 32px;
+            padding: 0 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-top: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+        .result-table {
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .result-table .layui-table {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部 -->
+        <div class="layui-header">
+            <div class="layui-logo">呈尚策划门店ID统计</div>
+            <div class="vip-tip-container">
+                <!-- 移除会员限制提示 -->
+            </div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="../index.html" class="layui-btn layui-btn-primary">返回首页</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="layui-body">
+            <div class="layui-fluid">
+                <!-- 数据导入区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">数据导入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-form">
+                            <!-- 第一行：文件选择 -->
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Excel文件</label>
+                                    <div class="file-upload-area">
+                                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                                        <button class="layui-btn" onclick="document.getElementById('fileInput').click()">
+                                            <i class="layui-icon" data-icon="file">📁</i> 选择文件
+                                        </button>
+                                        <span id="fileName" style="font-size: 12px; color: #999;"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 第二行：输入参数 -->
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>门店ID列表</label>
+                                    <textarea id="storeIds" placeholder="请输入门店ID，每行一个&#10;例如：&#10;27028017&#10;28542133&#10;27567210&#10;&#10;💡 提示：门店ID是8位数字"
+                                              class="layui-textarea" style="width: 300px; height: 120px; resize: vertical;"></textarea>
+                                    <small style="color: #999; font-size: 12px; margin-top: 5px; display: block;">
+                                        📋 门店ID示例：27028017, 28542133, 27567210<br>
+                                        🔍 可在Excel文件的"门店ID"列中找到对应的8位数字
+                                    </small>
+                                </div>
+
+                                <div class="input-group">
+                                    <label>绩效百分比 (%)</label>
+                                    <input type="number" id="performancePercent" placeholder="例如：15"
+                                           class="layui-input" style="width: 150px;" min="0" max="100" step="0.1">
+                                </div>
+                            </div>
+
+                            <!-- 第三行：操作按钮 -->
+                            <div class="button-group">
+                                <button class="layui-btn" id="analyzeBtn" disabled>
+                                    <i class="layui-icon" data-icon="search">🔍</i> 开始分析
+                                </button>
+                                <button class="layui-btn layui-btn-normal" id="exportBtn" disabled>
+                                    <i class="layui-icon" data-icon="export">📤</i> 导出结果
+                                </button>
+                                <button class="layui-btn layui-btn-primary" id="resetBtn">
+                                    <i class="layui-icon" data-icon="reset">🔄</i> 重置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据预览 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">数据预览</div>
+                    <div class="layui-card-body">
+                        <div id="previewTable" class="preview-table-container"></div>
+                    </div>
+                </div>
+
+                <!-- 分析结果 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">分析结果</div>
+                    <div class="layui-card-body">
+                        <div id="resultTable" class="result-table"></div>
+                        <div id="performanceResult" class="info-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layui JS -->
+    <script src="https://unpkg.com/layui@2.9.0/dist/layui.js"></script>
+    <script>
+        // 备用加载方案
+        window.addEventListener('DOMContentLoaded', function() {
+            if (typeof layui === 'undefined') {
+                console.warn('Layui加载失败，尝试备用CDN...');
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/layui@2.9.0/dist/layui.js';
+                script.onload = function() {
+                    console.log('备用CDN加载成功');
+                    initializeLayui();
+                };
+                script.onerror = function() {
+                    console.error('所有CDN都无法加载Layui库');
+                    // 如果CDN都失败，使用基础样式
+                    document.body.classList.add('no-layui');
+                };
+                document.head.appendChild(script);
+            } else {
+                initializeLayui();
+            }
+        });
+
+        function initializeLayui() {
+            if (typeof layui !== 'undefined') {
+                layui.use(['layer'], function(){
+                    var layer = layui.layer;
+                    console.log('Layui初始化成功');
+                });
+            }
+        }
+    </script>
+    <!-- 业务逻辑 -->
+    <script>
+        console.log('开始加载main.js...');
+    </script>
+    <script src="./assets/js/main.js" onload="console.log('main.js加载成功')" onerror="console.error('main.js加载失败')"></script>
+    <script>
+        console.log('main.js引用完成');
+    </script>
+    <script>
+        // 初始化欢迎消息
+        function showWelcomeMessage() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            if (!isLoggedIn) {
+                if (typeof layui !== 'undefined' && layui.layer) {
+                    // 使用Layui弹窗
+                    layui.use(['layer'], function(){
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            title: '呈尚策划门店ID统计系统',
+                            closeBtn: 0,
+                            area: ['400px', '240px'],
+                            shade: 0.8,
+                            id: 'LAY_welcomeMsg',
+                            btn: ['开始使用'],
+                            btnAlign: 'c',
+                            moveType: 1,
+                            content: `<div style="padding: 20px; line-height: 22px; text-align: center;">
+                                <p style="margin-bottom: 15px;">欢迎使用呈尚策划门店ID统计系统</p>
+                                <p style="color: #1890ff; font-size: 14px;">基于门店ID的精准数据分析工具</p>
+                            </div>`,
+                            yes: function(index){
+                                localStorage.setItem('isLoggedIn', 'true');
+                                layer.close(index);
+                            }
+                        });
+                    });
+                } else {
+                    // 备用方案：使用原生确认框
+                    const welcome = confirm('欢迎使用呈尚策划门店ID统计系统\n基于门店ID的精准数据分析工具\n\n点击确定开始使用');
+                    if (welcome) {
+                        localStorage.setItem('isLoggedIn', 'true');
+                    }
+                }
+            }
+        }
+
+        // 页面加载完成后显示欢迎消息
+        window.addEventListener('load', function() {
+            setTimeout(showWelcomeMessage, 500);
+        });
+    </script>
+</body>
+</html>

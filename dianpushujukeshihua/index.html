@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>呈尚策划数据分析</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <!-- Layui CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.9.0/css/layui.css">
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入 Papa Parse 用于解析 CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <!-- 引入 html2canvas 用于导出图片 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        .layui-layout-admin .layui-body {
+            bottom: 0;
+        }
+        .chart-area {
+            height: 400px;
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .chart-area:hover {
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.15);
+        }
+        .stats-container {
+            margin: 15px 0;
+        }
+        .chart-title {
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        /* 数据统计样式 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            background: #fff;
+        }
+        .stats-item {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .stats-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px 0 rgba(0,0,0,0.15);
+        }
+        .stats-item-label {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .stats-item-value {
+            color: #1890ff;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 8px 0;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stats-details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .stats-detail-item {
+            text-align: center;
+        }
+        .stats-detail-item > div:first-child {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .stats-detail-value {
+            color: #1890ff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .layui-card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: visible !important;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+        .layui-card-header {
+            font-size: 16px;
+            font-weight: 500;
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        .layui-card-body {
+            padding: 20px;
+            background: #fff;
+        }
+        .layui-btn {
+            border-radius: 4px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.015);
+        }
+        .layui-btn-primary:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        .layui-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            overflow: visible !important;
+            padding-bottom: 60px;
+        }
+        .vip-tip {
+            color: #faad14;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(250,173,20,0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+        /* 修复数据统计区域的样式 */
+        #statsArea {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            background: #fff;
+            margin-bottom: 40px;
+            min-height: 200px;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .layui-badge {
+            margin-left: 10px;
+            padding: 0 8px;
+            height: 22px;
+            line-height: 22px;
+            border-radius: 11px;
+            background-color: #1890ff;
+            color: #fff;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .layui-body {
+            overflow-y: auto !important;
+        }
+        /* 修改顶部栏样式 */
+        .layui-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .layui-logo {
+            flex: 0 0 200px;
+            color: #fff;
+            font-size: 18px;
+        }
+        .vip-tip-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .vip-tip {
+            color: #faad14;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(250,173,20,0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .layui-nav.layui-layout-right {
+            flex: 0 0 auto;
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item {
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn {
+            height: 32px;
+            line-height: 32px;
+            padding: 0 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-top: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部 -->
+        <div class="layui-header">
+            <div class="layui-logo">呈尚策划数据分析</div>
+            <div class="vip-tip-container">
+                <!-- 移除会员限制提示 -->
+        </div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="../index.html" class="layui-btn layui-btn-primary">返回首页</a>
+                </li>
+            </ul>
+    </div>
+
+        <!-- 主体内容 -->
+        <div class="layui-body">
+            <div class="layui-fluid">
+        <!-- 文件上传区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">数据导入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-form">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                                    <button class="layui-btn" onclick="document.getElementById('fileInput').click()">
+                                        <i class="layui-icon">&#xe67c;</i> 选择文件
+                                    </button>
+                                    <span id="fileName"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <div class="layui-btn-container">
+                            <button id="analyzeBtn" class="layui-btn">
+                                <i class="layui-icon">&#xe628;</i> 运行分析
+                            </button>
+                            <button id="barChartBtn" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe63c;</i> 柱状图
+                            </button>
+                            <button id="areaChartBtn" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe62c;</i> 面积图
+                            </button>
+                            <button id="lineChartBtn" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe621;</i> 折线图
+                            </button>
+                            <button id="exportBtn" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe67d;</i> 导出图表
+                            </button>
+                            <button id="resetBtn" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe669;</i> 重置
+                            </button>
+                        </div>
+                    </div>
+        </div>
+
+        <!-- 图表显示区域 -->
+                <div class="layui-row layui-col-space15">
+            <!-- 收入图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">收入趋势</div>
+                            <div class="layui-card-body">
+                <div id="incomeChart" class="chart-area"></div>
+                            </div>
+                        </div>
+            </div>
+            
+            <!-- 营业额图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">营业额趋势</div>
+                            <div class="layui-card-body">
+                <div id="revenueChart" class="chart-area"></div>
+                            </div>
+                        </div>
+            </div>
+            
+            <!-- 曝光人数图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">曝光人数趋势</div>
+                            <div class="layui-card-body">
+                <div id="exposureChart" class="chart-area"></div>
+                            </div>
+                        </div>
+            </div>
+            
+            <!-- 入店人数图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">入店人数趋势</div>
+                            <div class="layui-card-body">
+                <div id="visitorsChart" class="chart-area"></div>
+                            </div>
+                        </div>
+            </div>
+
+            <!-- 转化率图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">转化率趋势</div>
+                            <div class="layui-card-body">
+                <div id="conversionChart" class="chart-area"></div>
+                            </div>
+                        </div>
+            </div>
+
+            <!-- 下单人数图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">下单人数趋势</div>
+                            <div class="layui-card-body">
+                <div id="ordersChart" class="chart-area"></div>
+                            </div>
+                        </div>
+            </div>
+        </div>
+
+        <!-- 数据统计区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <span>数据统计</span>
+                        <span class="layui-badge">共0天</span>
+                    </div>
+                    <div class="layui-card-body">
+                        <div id="statsArea" class="stats-grid"></div>
+                    </div>
+        </div>
+
+                <!-- 底部版权 -->
+                <div class="layui-footer">
+                    © 2025 呈尚策划
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layui JS -->
+    <script src="https://cdn.staticfile.org/layui/2.9.0/layui.js"></script>
+    <script>
+        layui.use(['layer'], function(){
+            var layer = layui.layer;
+
+            // GitHub Pages版本 - 使用本地存储模拟登录状态
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            if (!isLoggedIn) {
+                // 首次访问时，显示欢迎信息并设置登录状态
+                layer.open({
+                    type: 1,
+                    title: '呈尚策划数据分析系统',
+                    closeBtn: 0,
+                    area: ['400px', '240px'],
+                    shade: 0.8,
+                    id: 'LAY_welcomeMsg',
+                    btn: ['开始使用'],
+                    btnAlign: 'c',
+                    moveType: 1,
+                    content: `<div style="padding: 20px; line-height: 22px; text-align: center;">
+                        <p style="margin-bottom: 15px;">欢迎使用呈尚策划数据分析系统</p>
+                        <p style="color: #1890ff; font-size: 14px;">专业的数据可视化工具</p>
+                    </div>`,
+                    yes: function(index){
+                        localStorage.setItem('isLoggedIn', 'true');
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
