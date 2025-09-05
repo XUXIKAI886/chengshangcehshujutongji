@@ -1,15 +1,21 @@
 # 呈尚策划数据统计系统
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-v2.0.0-green.svg)](CHANGELOG.md)
+[![Platform](https://img.shields.io/badge/platform-Web-orange.svg)](README.md)
+
 ## 项目简介
 
-呈尚策划数据统计系统是一个专业的Excel数据分析工具集，包含三个核心功能模块：
-- **绩效统计模块**：针对店铺绩效数据进行分析和统计
-- **门店ID统计模块**：基于门店ID进行精准数据分析和统计
-- **服务商统计模块**：对服务商结算数据进行多维度分析
+呈尚策划数据统计系统是一个专业的Excel数据分析工具集，提供现代化的Web界面和强大的数据处理能力。系统包含四个核心功能模块：
+
+- **🏆 绩效统计模块**：针对店铺绩效数据进行分析和统计
+- **🏪 门店ID统计专业版**：基于门店ID的现代化数据分析平台
+- **📊 店铺数据可视化**：CSV数据的多维度趋势分析
+- **🔧 服务商统计模块**：对服务商结算数据进行多维度分析
 
 ## 功能特性
 
-### 绩效统计模块 (`jixiaotongji`)
+### 🏆 绩效统计模块 (`jixiaotongji`)
 - 📊 Excel文件导入和解析
 - 🏪 多店铺数据批量分析
 - 💰 自动计算结算金额和绩效
@@ -17,15 +23,30 @@
 - 📋 结果数据导出为Excel
 - 🔄 一键重置功能
 
-### 门店ID统计模块 (`mendianidtongji`)
-- 🏪 门店ID精确匹配查询
-- 📊 多门店ID批量分析
-- 💰 自动计算结算金额和绩效
-- ✅ 数据匹配状态显示
-- 📋 结果数据导出为Excel
-- 🎯 避免商家名称变更问题
+### 🏪 门店ID统计专业版 (`mendianid-pro`) ⭐ **新版本**
+- 🎨 **现代化UI设计**：渐变背景、毛玻璃效果、响应式布局
+- 🚀 **拖拽上传**：支持拖拽Excel文件上传
+- 📊 **实时统计卡片**：动态显示关键指标
+- 🔍 **智能数据检测**：自动识别Excel格式和字段
+- 💡 **专业图标库**：使用Font Awesome图标替代emoji
+- 📈 **动态绩效计算**：实时计算和显示绩效金额
+- 📋 **专业报告导出**：生成详细的Excel统计报告
+- 🎯 **精确门店ID匹配**：避免商家名称变更问题
 
-### 服务商统计模块 (`fuwushangtongji`)
+### 📊 店铺数据可视化模块 (`dianpushujukeshihua`) ⭐ **新增**
+- 📁 **CSV数据导入**：支持CSV格式数据文件
+- 📈 **多维度趋势分析**：6种核心指标可视化
+- 🎯 **关键指标监控**：
+  - 📊 曝光量趋势
+  - 👆 点击量变化
+  - 💰 花费金额统计
+  - 🎯 点击率分析
+  - 💵 平均点击花费
+  - 🔄 转化率监控
+- 🎨 **交互式图表**：基于ECharts的专业图表
+- 📱 **响应式设计**：完美适配各种设备
+
+### 🔧 服务商统计模块 (`fuwushangtongji`)
 - 📁 Excel数据文件处理
 - 📊 每日店铺数量和结算额统计
 - 🏬 店铺结算总额和天数分析
@@ -37,28 +58,32 @@
 
 ### 前端技术栈
 - **UI框架**: Layui 2.9.0
-- **图表库**: ECharts
-- **Excel处理**: XLSX.js
+- **图标库**: Font Awesome 6.4.0
+- **图表库**: ECharts 5.4.3
+- **Excel处理**: XLSX.js 0.18.5
 - **模块化**: ES6 Modules
-- **样式**: CSS3 + Flexbox/Grid
+- **样式**: CSS3 + Flexbox/Grid + 渐变效果
+- **交互**: 拖拽上传、响应式设计
 
 ### 项目结构
 ```
 呈尚策划数据统计系统/
-├── jixiaotongji/                 # 绩效统计模块
+├── index.html                   # 主页面入口
+├── favicon.svg                  # 网站图标
+├── jixiaotongji/                # 绩效统计模块
 │   ├── index.html               # 主页面
-│   ├── assets/
-│   │   ├── js/
-│   │   │   └── main.js         # 核心业务逻辑
-│   │   └── css/
-│   │       └── styles.css      # 样式文件
-├── mendianidtongji/             # 门店ID统计模块
-│   ├── index.html              # 主页面
-│   ├── assets/
-│   │   ├── js/
-│   │   │   └── main.js         # 核心业务逻辑
-│   │   └── css/
-│   │       └── styles.css      # 样式文件
+│   └── assets/
+│       ├── js/main.js          # 核心业务逻辑
+│       └── css/styles.css      # 样式文件
+├── mendianid-pro/               # 门店ID统计专业版 ⭐
+│   ├── index.html              # 专业版主页面
+│   └── assets/
+│       ├── js/main.js          # 专业版核心逻辑
+│       └── css/styles.css      # 专业版样式
+├── dianpushujukeshihua/         # 店铺数据可视化模块 ⭐
+│   ├── index.html              # 可视化主页面
+│   └── assets/
+│       └── js/main.js          # 可视化核心逻辑
 ├── fuwushangtongji/             # 服务商统计模块
 │   ├── index.html              # 主页面
 │   ├── main.js                 # 主程序入口
@@ -66,21 +91,36 @@
 │   ├── chartRenderer.js        # 图表渲染器
 │   ├── utils.js                # 工具函数
 │   └── styles.css              # 样式文件
-└── README.md                   # 项目文档
+├── README.md                   # 项目文档
+└── CLAUDE.md                   # 开发指南
 ```
 
 ### 核心模块说明
 
-#### 绩效统计模块架构
+#### 🏆 绩效统计模块架构
 - **main.js**: 主业务逻辑，包含文件处理、数据分析、结果展示
 - **功能流程**: 文件上传 → 数据解析 → 店铺筛选 → 金额统计 → 绩效计算 → 结果导出
 
-#### 门店ID统计模块架构
-- **main.js**: 主业务逻辑，基于门店ID精确匹配的数据分析
-- **功能流程**: 文件上传 → 数据解析 → 门店ID匹配 → 金额统计 → 绩效计算 → 结果导出
-- **核心特性**: 精确匹配门店ID，避免商家名称变更导致的数据匹配问题
+#### 🏪 门店ID统计专业版架构
+- **main.js**: 专业版核心逻辑，现代化的数据处理引擎
+- **功能特性**:
+  - 智能Excel格式检测（支持特殊标题行）
+  - 拖拽上传和文件验证
+  - 实时统计卡片更新
+  - 专业图标库集成
+  - 动态绩效计算
+- **功能流程**: 拖拽上传 → 智能解析 → 门店ID匹配 → 实时统计 → 可视化展示 → 专业报告导出
 
-#### 服务商统计模块架构
+#### 📊 店铺数据可视化模块架构
+- **main.js**: 可视化核心逻辑，基于ECharts的数据分析引擎
+- **功能特性**:
+  - CSV数据解析和验证
+  - 6种核心指标计算
+  - 交互式图表渲染
+  - 趋势分析算法
+- **功能流程**: CSV上传 → 数据解析 → 指标计算 → 图表渲染 → 趋势分析
+
+#### 🔧 服务商统计模块架构
 - **main.js**: 程序入口和事件绑定
 - **dataProcessor.js**: 数据处理核心类，负责Excel解析和数据分析
 - **chartRenderer.js**: 图表渲染类，基于ECharts实现数据可视化
@@ -114,9 +154,17 @@ php -S localhost:8000
 ```
 
 3. **访问应用**
+- 主页面: `http://localhost:8000/`
 - 绩效统计: `http://localhost:8000/jixiaotongji/`
-- 门店ID统计: `http://localhost:8000/mendianidtongji/`
+- 门店ID统计专业版: `http://localhost:8000/mendianid-pro/`
+- 店铺数据可视化: `http://localhost:8000/dianpushujukeshihua/`
 - 服务商统计: `http://localhost:8000/fuwushangtongji/`
+
+### 快捷键导航
+在主页面可以使用键盘快捷键快速访问各模块：
+- **按键 1**: 绩效统计模块
+- **按键 2**: 门店ID统计专业版
+- **按键 3**: 服务商统计模块
 
 ## 使用说明
 
@@ -131,21 +179,48 @@ php -S localhost:8000
    选择Excel文件 → 输入店铺名称 → 设置绩效百分比 → 开始分析 → 查看结果 → 导出数据
    ```
 
-### 门店ID统计模块使用流程
+### 🏪 门店ID统计专业版使用流程
 
 1. **数据准备**
    - 准备包含以下字段的Excel文件：
      - 日期、商家名称、门店ID、结算周期、费用类型、结算金额(元)、扣费说明
+   - 支持特殊格式Excel（如第一行为"代运营账单"标题）
 
 2. **操作步骤**
    ```
-   选择Excel文件 → 输入门店ID → 设置绩效百分比 → 开始分析 → 查看结果 → 导出数据
+   拖拽上传Excel文件 → 输入门店ID列表 → 设置绩效百分比 → 开始分析 → 查看实时统计 → 导出专业报告
    ```
 
-3. **核心优势**
-   - **精确匹配**: 基于门店ID进行精确匹配，避免商家名称变更导致的数据丢失
-   - **状态显示**: 清晰显示每个门店ID的匹配状态（匹配成功/未找到数据）
-   - **批量处理**: 支持多个门店ID同时查询分析
+3. **专业版特性**
+   - **🎨 现代化界面**: 渐变背景、毛玻璃效果、专业图标
+   - **🚀 拖拽上传**: 支持拖拽Excel文件，自动格式检测
+   - **📊 实时统计**: 动态显示查询门店总数、找到数据门店、总结算天数、汇总金额
+   - **💡 智能提示**: 清晰说明"未找到数据"表示当月无抽点收入
+   - **📋 专业报告**: 生成包含汇总统计和绩效计算的详细Excel报告
+   - **🎯 精确匹配**: 基于门店ID进行精确匹配，避免商家名称变更问题
+
+4. **输入格式**
+   - 门店ID：每行一个8位数字，如：29403177
+   - 绩效百分比：数字格式，默认10%
+
+### 📊 店铺数据可视化模块使用流程
+
+1. **数据准备**
+   - 准备包含以下字段的CSV文件：
+     - 日期、曝光量、点击量、花费、点击率、平均点击花费、转化数
+
+2. **操作步骤**
+   ```
+   上传CSV文件 → 自动数据解析 → 查看6种指标趋势图 → 分析数据变化
+   ```
+
+3. **可视化指标**
+   - **📊 曝光量趋势**: 展示广告曝光量的时间变化
+   - **👆 点击量变化**: 分析用户点击行为趋势
+   - **💰 花费金额统计**: 监控广告投入成本
+   - **🎯 点击率分析**: 评估广告效果
+   - **💵 平均点击花费**: 成本效益分析
+   - **🔄 转化率监控**: 转化效果追踪
 
 3. **输入格式**
    - 店铺名称：每行一个，支持模糊匹配
@@ -223,14 +298,17 @@ resize()
 ### CDN资源配置
 ```html
 <!-- Layui框架 -->
-<link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.9.0/css/layui.css">
-<script src="https://cdn.staticfile.org/layui/2.9.0/layui.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/layui@2.9.0/dist/css/layui.css">
+<script src="https://unpkg.com/layui@2.9.0/dist/layui.js"></script>
+
+<!-- Font Awesome图标库 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- Excel处理库 -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-<!-- 图表库（仅服务商统计模块） -->
-<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<!-- 图表库 -->
+<script src="https://unpkg.com/echarts@5.4.3/dist/echarts.min.js"></script>
 ```
 
 ### 样式主题配置
@@ -274,9 +352,35 @@ A: 请确保浏览器支持文件下载，检查是否被弹窗拦截
 
 ## 更新日志
 
-### v1.0.0 (2025-01-XX)
+### v2.0.0 (2025-01-05) ⭐ **最新版本**
+- ✨ **新增门店ID统计专业版**
+  - 🎨 现代化UI设计，渐变背景和毛玻璃效果
+  - 🚀 支持拖拽上传Excel文件
+  - 📊 实时统计卡片显示关键指标
+  - 💡 专业图标库替换emoji
+  - 🔍 智能Excel格式检测
+  - 📋 专业报告导出功能
+
+- ✨ **新增店铺数据可视化模块**
+  - 📁 CSV数据导入和解析
+  - 📈 6种核心指标可视化
+  - 🎯 多维度趋势分析
+  - 📊 交互式ECharts图表
+
+- 🔄 **主页面优化**
+  - 移除基础版门店ID统计
+  - 优化卡片布局和导航
+  - 更新键盘快捷键
+
+- 📚 **文档完善**
+  - 更新README.md
+  - 完善开发指南
+  - 添加使用说明
+
+### v1.0.0 (2024-12-XX)
 - ✨ 初始版本发布
 - 🎯 绩效统计模块完成
+- 🏪 门店ID统计基础版完成
 - 📊 服务商统计模块完成
 - 🎨 UI界面优化
 - 📱 响应式设计支持
@@ -285,11 +389,36 @@ A: 请确保浏览器支持文件下载，检查是否被弹窗拦截
 
 本项目为开源项目，可自由使用和修改。
 
+## 演示截图
+
+### 主页面
+![主页面](docs/images/homepage.png)
+
+### 门店ID统计专业版
+![门店ID统计专业版](docs/images/mendianid-pro.png)
+
+### 店铺数据可视化
+![店铺数据可视化](docs/images/data-visualization.png)
+
+## 贡献指南
+
+欢迎提交Issue和Pull Request来改进项目！
+
+1. Fork 项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开 Pull Request
+
 ## 联系方式
 
 - 开发团队：呈尚策划
-- 技术支持：[联系方式]
-- 项目地址：[项目仓库地址]
+- 项目地址：https://github.com/XUXIKAI886/chengshangcehshujutongji
+- 在线演示：[演示地址]
+
+## 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
 ---
 
