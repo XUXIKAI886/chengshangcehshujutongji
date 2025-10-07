@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>饿了么门店ID统计专业版</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <!-- Layui CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/layui@2.9.0/dist/css/layui.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- XLSX -->
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- 头部 -->
+        <div class="header-card">
+            <div class="header-title">
+                <i class="fas fa-utensils" style="margin-right: 10px; color: #0089ff;"></i>
+                饿了么门店ID统计专业版
+            </div>
+            <div class="header-subtitle">基于饿了么门店ID的代运营结算金额统计系统</div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="stat-value" id="totalStores">0</div>
+                <div class="stat-label">查询门店总数</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value" id="foundStores">0</div>
+                <div class="stat-label">找到数据门店</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-value" id="totalDays">0</div>
+                <div class="stat-label">总结算天数</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="stat-value" id="totalAmount">¥0.00</div>
+                <div class="stat-label">结算金额汇总</div>
+            </div>
+        </div>
+
+        <!-- 主要内容 -->
+        <div class="content-grid">
+            <!-- 左侧主内容 -->
+            <div class="main-content">
+                <!-- 数据表格 -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-chart-bar" style="margin-right: 8px; color: #0089ff;"></i>
+                        门店统计详情
+                        <span class="layui-badge layui-bg-blue" id="statusBadge">等待数据</span>
+                    </div>
+
+                    <!-- 说明提示 -->
+                    <div class="info-tip">
+                        <div class="info-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="info-content">
+                            <strong>数据说明：</strong>
+                            "未找到数据"的门店ID表示该门店在查询周期内没有产生代运营结算金额。系统会自动统计每个门店ID的结算天数和金额汇总。
+                        </div>
+                    </div>
+
+                    <div id="resultsContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-file-excel"></i>
+                            <p>请上传饿了么账单Excel文件并输入门店ID开始分析</p>
+                            <small>支持 .xls 和 .xlsx 格式的饿了么周期账单</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧边栏 -->
+            <div class="sidebar">
+                <!-- 文件上传 -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-upload" style="margin-right: 8px; color: #27ae60;"></i>
+                        账单导入
+                    </div>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div class="upload-text">点击选择或拖拽Excel文件</div>
+                        <small class="upload-hint">支持饿了么周期账单 (.xls / .xlsx)</small>
+                    </div>
+                    <div id="fileInfo" class="file-info" style="display: none;">
+                        <div class="file-success">
+                            <i class="fas fa-check-circle"></i>
+                            文件已选择
+                        </div>
+                        <div id="fileName" class="file-name"></div>
+                    </div>
+                </div>
+
+                <!-- 门店ID输入 -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-list-ul" style="margin-right: 8px; color: #9b59b6;"></i>
+                        饿了么门店ID列表
+                    </div>
+                    <textarea id="storeIds" class="store-id-input"
+                              placeholder="请输入饿了么门店ID，每行一个&#10;例如：&#10;536525267&#10;536456718&#10;535831684&#10;&#10;💡 支持批量粘贴"></textarea>
+                    <div class="input-hint">
+                        <div><i class="fas fa-info-circle"></i> 门店ID格式：9位数字</div>
+                        <div><i class="fas fa-table"></i> 可从Excel"门店id"列复制</div>
+                    </div>
+                </div>
+
+                <!-- 绩效设置 -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-calculator" style="margin-right: 8px; color: #f39c12;"></i>
+                        绩效计算
+                    </div>
+                    <div class="performance-input">
+                        <label>绩效比例：</label>
+                        <input type="number" id="performanceRate" placeholder="10" min="0" max="100" step="0.1">
+                        <span>%</span>
+                    </div>
+                    <div class="performance-summary" id="performanceSummary" style="display: none;">
+                        <div class="performance-item">
+                            <span class="performance-label">绩效金额：</span>
+                            <span class="performance-amount" id="performanceAmount">¥0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-cogs" style="margin-right: 8px; color: #e74c3c;"></i>
+                        操作中心
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="analyzeBtn" disabled>
+                            <i class="fas fa-search"></i>
+                            开始分析
+                        </button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="exportBtn" disabled>
+                            <i class="fas fa-download"></i>
+                            导出报告
+                        </button>
+                        <button class="btn btn-secondary" id="resetBtn">
+                            <i class="fas fa-redo"></i>
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layui JS -->
+    <script src="https://unpkg.com/layui@2.9.0/dist/layui.js"></script>
+    <!-- 业务逻辑 -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
