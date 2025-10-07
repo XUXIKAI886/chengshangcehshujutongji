@@ -264,6 +264,28 @@
                     进入服务商统计
                 </button>
             </div>
+
+            <!-- 饿了么服务商统计模块卡片 -->
+            <div class="project-card" onclick="navigateToProject('./eleme-fuwushang/index.html')">
+                <div class="card-icon" style="background: linear-gradient(135deg, #0089ff, #0050c8);">
+                    <i class="layui-icon">&#xe62c;</i>
+                </div>
+                <h2 class="card-title" style="color: #0089ff;">饿了么服务商统计</h2>
+                <p class="card-description">
+                    专为饿了么平台设计的代运营账单分析系统，支持按日期和门店多维度统计
+                </p>
+                <ul class="card-features">
+                    <li>📊 按日期统计门店数和结算额</li>
+                    <li>🏬 按门店统计结算金额和天数</li>
+                    <li>📈 饿了么主题可视化图表</li>
+                    <li>💾 Excel报告自动导出</li>
+                    <li>🖼️ 图表PNG格式保存</li>
+                </ul>
+                <button class="card-button" style="background: linear-gradient(135deg, #0089ff, #0050c8);">
+                    <i class="layui-icon" style="margin-right: 8px;">&#xe65f;</i>
+                    进入饿了么服务商统计
+                </button>
+            </div>
         </div>
         
         <!-- 页脚区域 -->
@@ -293,6 +315,8 @@
                 navigateToProject('./mendianid-pro/index.html'); // 美团门店ID统计专业版
             } else if (e.key === '3') {
                 navigateToProject('./fuwushangtongji/index.html'); // 服务商统计模块
+            } else if (e.key === '4') {
+                navigateToProject('./eleme-fuwushang/index.html'); // 饿了么服务商统计
             }
         });
     </script>

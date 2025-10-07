@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>饿了么服务商统计</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <!-- Layui CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.9.0/css/layui.css">
+    <!-- 引入第三方库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script>
+        // 将第三方库暴露为全局变量
+        window.XLSX = XLSX;
+        window.echarts = echarts;
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0089ff 0%, #0050c8 100%);
+        }
+        .layui-layout-admin .layui-body {
+            bottom: 0;
+        }
+        .chart-area {
+            height: 400px;
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .chart-area:hover {
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.15);
+        }
+        .stats-container {
+            margin: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .layui-card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .layui-card:hover {
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.15);
+        }
+        .layui-card-header {
+            height: auto;
+            line-height: 24px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #e8f4fd, #f0f9ff);
+            border-bottom: 1px solid #bfdbfe;
+            font-size: 16px;
+            font-weight: 500;
+            color: #0089ff;
+        }
+        .layui-card-body {
+            padding: 20px;
+            background: #fff;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 10px 0;
+            background: #fff;
+            border-radius: 8px;
+        }
+        .table-container .layui-table {
+            margin: 0;
+        }
+        .table-container thead tr {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 1;
+        }
+        .layui-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            background: linear-gradient(135deg, #0089ff, #0050c8);
+        }
+        .layui-logo {
+            flex: 0 0 200px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            font-size: 24px;
+        }
+        .vip-tip-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .vip-tip {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .layui-nav.layui-layout-right {
+            flex: 0 0 auto;
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item {
+            background: none;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn {
+            height: 32px;
+            line-height: 32px;
+            padding: 0 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-top: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .layui-nav.layui-layout-right .layui-nav-item a.layui-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+        .layui-btn {
+            border-radius: 4px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.015);
+            transition: all 0.3s ease;
+        }
+        .layui-btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+        .layui-btn-primary {
+            border-color: #d9d9d9;
+            background: #fff;
+        }
+        .layui-btn-primary:hover {
+            border-color: #0089ff;
+            color: #0089ff;
+        }
+        .layui-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* 美化滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0089ff;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+        /* 表格样式优化 */
+        .layui-table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .layui-table thead tr {
+            background: linear-gradient(135deg, #e8f4fd, #f0f9ff);
+        }
+        .layui-table th {
+            font-weight: 500;
+            color: #0089ff;
+            background: linear-gradient(135deg, #e8f4fd, #f0f9ff);
+            border-bottom: 1px solid #bfdbfe;
+        }
+        .layui-table td {
+            color: #666;
+        }
+        .layui-table tbody tr:hover {
+            background-color: #f0f9ff;
+        }
+        /* 按钮组样式 */
+        .layui-btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .layui-btn-container .layui-btn {
+            margin: 0;
+        }
+        /* 文件上传区域样式 */
+        #fileName {
+            margin-left: 10px;
+            color: #666;
+        }
+        .layui-footer {
+            background: linear-gradient(135deg, #0089ff, #0050c8);
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部 -->
+        <div class="layui-header">
+            <div class="layui-logo">
+                <span class="logo-icon">🍔</span>
+                饿了么服务商统计
+            </div>
+            <div class="vip-tip-container">
+                <div class="vip-tip">专为饿了么平台设计的代运营数据分析工具</div>
+            </div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="../index.html" class="layui-btn layui-btn-primary">返回首页</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="layui-body">
+            <div class="layui-fluid">
+                <!-- 文件上传区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">📁 饿了么账单导入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-form">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <input type="file" id="fileInput" accept=".xls,.xlsx" style="display: none;">
+                                    <button class="layui-btn" onclick="document.getElementById('fileInput').click()">
+                                        <i class="layui-icon">&#xe67c;</i> 选择饿了么账单文件
+                                    </button>
+                                    <span id="fileName"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮区域 -->
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <div class="layui-btn-container">
+                            <button id="initButton" class="layui-btn">
+                                <i class="layui-icon">&#xe669;</i> 初始化
+                            </button>
+                            <button id="analyzeButton1" class="layui-btn">
+                                <i class="layui-icon">&#xe628;</i> 按日期统计门店数和结算额
+                            </button>
+                            <button id="analyzeButton2" class="layui-btn">
+                                <i class="layui-icon">&#xe628;</i> 按门店统计结算金额和天数
+                            </button>
+                            <button id="exportTable1" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe67d;</i> 导出表格1
+                            </button>
+                            <button id="exportTable2" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe67d;</i> 导出表格2
+                            </button>
+                            <button id="generateChart" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe62c;</i> 生成图表
+                            </button>
+                            <button id="saveChart" class="layui-btn layui-btn-primary">
+                                <i class="layui-icon">&#xe67d;</i> 保存图表
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据展示区域 -->
+                <div class="layui-row layui-col-space15">
+                    <!-- 表格1 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">📊 每天门店数和结算总额统计</div>
+                            <div class="layui-card-body">
+                                <div class="table-container">
+                                    <div id="table1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 表格2 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">🏪 每个门店结算总额和天数统计</div>
+                            <div class="layui-card-body">
+                                <div class="table-container">
+                                    <div id="table2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 图表 -->
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">📈 数据可视化</div>
+                            <div class="layui-card-body">
+                                <div id="chartContainer" class="chart-area"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部版权 -->
+        <div class="layui-footer">
+            © 2025 呈尚策划 - 饿了么服务商统计系统
+        </div>
+    </div>
+
+    <!-- Layui JS -->
+    <script src="https://cdn.staticfile.org/layui/2.9.0/layui.js"></script>
+    <!-- 引入自定义脚本 -->
+    <script type="module" src="utils.js"></script>
+    <script type="module" src="dataProcessor.js"></script>
+    <script type="module" src="chartRenderer.js"></script>
+    <script type="module" src="main.js"></script>
+    <script>
+        layui.use(['layer'], function(){
+            var layer = layui.layer;
+
+            const isLoggedIn = localStorage.getItem('isElemeFuwushangLoggedIn');
+
+            if (!isLoggedIn) {
+                layer.open({
+                    type: 1,
+                    title: '饿了么服务商统计系统',
+                    closeBtn: 0,
+                    area: ['420px', '260px'],
+                    shade: 0.8,
+                    id: 'LAY_welcomeMsg',
+                    btn: ['开始使用'],
+                    btnAlign: 'c',
+                    moveType: 1,
+                    content: `<div style="padding: 20px; line-height: 22px; text-align: center;">
+                        <p style="margin-bottom: 15px; font-size: 16px;">欢迎使用饿了么服务商统计系统</p>
+                        <p style="color: #0089ff; font-size: 14px;">专为饿了么平台设计的代运营数据分析工具</p>
+                        <p style="color: #999; font-size: 12px; margin-top: 15px;">支持自动统计门店数量和结算金额</p>
+                    </div>`,
+                    yes: function(index){
+                        localStorage.setItem('isElemeFuwushangLoggedIn', 'true');
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
