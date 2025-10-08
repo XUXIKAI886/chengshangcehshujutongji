@@ -270,7 +270,7 @@ function analyzeStoreData(data, storeIdList) {
                 contractStartTime: '-',
                 settlementDays: 0,
                 amount: 0,
-                orderCount: 0, // 新增订单数
+                orderCount: 0,
                 recordCount: 0,
                 found: false
             });
@@ -292,19 +292,18 @@ function analyzeStoreData(data, storeIdList) {
         );
         const settlementDays = settlementPeriods.size;
 
-        // 计算结算金额汇总和订单数（兼容多种字段名）
-        let amount = 0;
-        let orderCount = 0; // 订单计数（每笔33.95元算1单）
-
-        storeData.forEach(row => {
+        // 计算结算金额汇总（兼容多种字段名）
+        const amount = storeData.reduce((sum, row) => {
             const settlementAmount = parseFloat(row['结算金额'] || row['结算金额(元)'] || row['代运营结算金额'] || 0);
-            amount += settlementAmount;
+            return sum + settlementAmount;
+        }, 0);
 
-            // 如果结算金额为33.95元，计为1单
-            if (Math.abs(settlementAmount - 33.95) < 0.01) {
-                orderCount++;
-            }
-        });
+        const recordCount = storeData.length;
+
+        // 如果该门店的总结算金额为33.95，计为1单
+        const orderCount = (Math.abs(amount - 33.95) < 0.01) ? 1 : 0;
+
+        console.log(`📊 门店${storeId}统计: 记录数=${recordCount}, 总金额=¥${amount.toFixed(2)}, 订单数=${orderCount} (${amount === 33.95 ? '✓符合33.95' : '✗不符合'})`);
 
         results.foundStores.push(storeId);
         results.totalAmount += amount;
@@ -316,12 +315,12 @@ function analyzeStoreData(data, storeIdList) {
             contractStartTime,
             settlementDays,
             amount,
-            orderCount, // 新增订单数
-            recordCount: storeData.length,
+            orderCount, // 门店总金额=33.95时计为1单
+            recordCount,
             found: true
         });
 
-        console.log(`门店${storeId}: ${storeName}, ${settlementDays}个结算周期, ¥${amount.toFixed(2)}`);
+        console.log(`门店${storeId}: ${storeName}, ${settlementDays}个结算周期, ¥${amount.toFixed(2)}, ${orderCount}单`);
     });
 
     console.log('\n=== 汇总统计 ===');
@@ -391,7 +390,10 @@ function updateResultsTable(results) {
 
 // 计算绩效
 function calculatePerformance() {
-    if (!analysisResults) return;
+    if (!analysisResults) {
+        console.log('❌ calculatePerformance: analysisResults为空');
+        return;
+    }
 
     // 计算总订单数
     const totalOrders = analysisResults.details.reduce((sum, item) => sum + item.orderCount, 0);
@@ -400,12 +402,33 @@ function calculatePerformance() {
     const performancePerOrder = 7;
     const performance = totalOrders * performancePerOrder;
 
+    console.log('📊 绩效计算:', {
+        totalOrders,
+        performancePerOrder,
+        performance,
+        totalOrdersDisplay: totalOrdersDisplay ? '已找到' : '未找到'
+    });
+
     if (totalOrders > 0) {
-        totalOrdersDisplay.textContent = `${totalOrders}单`;
-        performanceAmount.textContent = `¥${performance.toFixed(2)}`;
+        if (totalOrdersDisplay) {
+            totalOrdersDisplay.textContent = `${totalOrders}单`;
+            console.log('✅ 总订单数已更新:', totalOrdersDisplay.textContent);
+        } else {
+            console.error('❌ totalOrdersDisplay元素未找到');
+        }
+
+        if (performanceAmount) {
+            performanceAmount.textContent = `¥${performance.toFixed(2)}`;
+            console.log('✅ 绩效金额已更新:', performanceAmount.textContent);
+        } else {
+            console.error('❌ performanceAmount元素未找到');
+        }
+
         performanceSummary.style.display = 'block';
+        console.log('✅ 绩效摘要已显示');
     } else {
         performanceSummary.style.display = 'none';
+        console.log('⚠️ 总订单数为0，隐藏绩效摘要');
     }
 }
 
