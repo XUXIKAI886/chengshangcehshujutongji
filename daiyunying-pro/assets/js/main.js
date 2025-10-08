@@ -8,7 +8,7 @@ let analysisResults = null;
 
 // DOM元素
 let fileInput, uploadArea, storeIds, performanceRate, analyzeBtn, exportBtn, resetBtn;
-let totalStoresEl, foundStoresEl, totalDaysEl, totalAmountEl, statusBadge;
+let totalStoresEl, foundStoresEl, totalOrdersEl, totalAmountEl, statusBadge;
 let resultsContainer, performanceSummary, performanceAmount, totalOrdersDisplay;
 
 // 初始化
@@ -37,7 +37,7 @@ function initializeElements() {
 
     totalStoresEl = document.getElementById('totalStores');
     foundStoresEl = document.getElementById('foundStores');
-    totalDaysEl = document.getElementById('totalDays');
+    totalOrdersEl = document.getElementById('totalOrders');
     totalAmountEl = document.getElementById('totalAmount');
     statusBadge = document.getElementById('statusBadge');
 
@@ -334,9 +334,12 @@ function analyzeStoreData(data, storeIdList) {
 
 // 更新统计数据
 function updateStatistics(results) {
+    // 计算总订单数
+    const totalOrders = results.details.reduce((sum, item) => sum + item.orderCount, 0);
+
     totalStoresEl.textContent = results.totalStores;
     foundStoresEl.textContent = results.foundStores.length;
-    totalDaysEl.textContent = results.totalDays;
+    totalOrdersEl.textContent = totalOrders;
     totalAmountEl.textContent = `¥${results.totalAmount.toFixed(2)}`;
 }
 
@@ -577,7 +580,7 @@ function resetAll() {
     // 重置统计数据
     totalStoresEl.textContent = '0';
     foundStoresEl.textContent = '0';
-    totalDaysEl.textContent = '0';
+    totalOrdersEl.textContent = '0';
     totalAmountEl.textContent = '¥0.00';
 
     // 重置表格
