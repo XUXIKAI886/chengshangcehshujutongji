@@ -286,6 +286,28 @@
                     进入饿了么服务商统计
                 </button>
             </div>
+
+            <!-- 饿了么固定费用统计卡片 -->
+            <div class="project-card" onclick="navigateToProject('./daiyunying-pro/index.html')">
+                <div class="card-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                    <i class="layui-icon">&#xe857;</i>
+                </div>
+                <h2 class="card-title" style="color: #9b59b6;">饿了么固定费用统计</h2>
+                <p class="card-description">
+                    饿了么固定费用结算统计系统，支持智能Excel格式检测和批量门店ID统计
+                </p>
+                <ul class="card-features">
+                    <li>💜 优雅紫色主题UI设计</li>
+                    <li>📊 实时统计卡片和结算周期统计</li>
+                    <li>🔍 智能识别特殊Excel格式</li>
+                    <li>🚀 拖拽上传和批量数据处理</li>
+                    <li>💰 绩效计算和专业报告导出</li>
+                </ul>
+                <button class="card-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                    <i class="layui-icon" style="margin-right: 8px;">&#xe857;</i>
+                    进入饿了么固定费用统计
+                </button>
+            </div>
         </div>
         
         <!-- 页脚区域 -->
@@ -317,6 +339,8 @@
                 navigateToProject('./fuwushangtongji/index.html'); // 美团服务商统计
             } else if (e.key === '4') {
                 navigateToProject('./eleme-fuwushang/index.html'); // 饿了么服务商统计
+            } else if (e.key === '5') {
+                navigateToProject('./daiyunying-pro/index.html'); // 饿了么固定费用统计
             }
         });
     </script>
