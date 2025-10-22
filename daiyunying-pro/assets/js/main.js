@@ -500,37 +500,71 @@ function calculatePerformance() {
         }
 
         if (performanceAmount) {
-            // 更新为详细的绩效展示
+            // 更新为精美的绩效展示
             performanceAmount.innerHTML = `
-                <div class="performance-detail">
-                    <div class="performance-section sales-performance">
-                        <div class="performance-title">💼 销售绩效</div>
-                        <div class="performance-breakdown">
-                            <div class="performance-item-small">
-                                <span>档位1 (${analysisResults.tierStats.tier1.count}单 × ¥${TIER_CONFIG.tier1.salesPerformance})</span>
-                                <strong>¥${tier1SalesPerf.toFixed(2)}</strong>
+                <div class="performance-detail-modern">
+                    <!-- 销售绩效卡片 -->
+                    <div class="perf-card perf-card-sales">
+                        <div class="perf-card-header">
+                            <div class="perf-icon-wrapper perf-icon-sales">
+                                <i class="fas fa-chart-line"></i>
                             </div>
-                            <div class="performance-item-small">
-                                <span>档位2 (${analysisResults.tierStats.tier2.count}单 × ¥${TIER_CONFIG.tier2.salesPerformance})</span>
-                                <strong>¥${tier2SalesPerf.toFixed(2)}</strong>
-                            </div>
-                            <div class="performance-subtotal">
-                                <span>销售绩效总额</span>
-                                <strong class="sales-total">¥${totalSalesPerf.toFixed(2)}</strong>
+                            <div class="perf-header-text">
+                                <h3>销售绩效</h3>
+                                <p>Sales Performance</p>
                             </div>
                         </div>
+                        <div class="perf-card-body">
+                            <div class="perf-item">
+                                <div class="perf-item-label">
+                                    <span class="perf-tier-badge tier1-badge">档位1</span>
+                                    <span class="perf-calc">${analysisResults.tierStats.tier1.count}单 × ¥${TIER_CONFIG.tier1.salesPerformance}</span>
+                                </div>
+                                <div class="perf-item-value">¥${tier1SalesPerf.toFixed(2)}</div>
+                            </div>
+                            <div class="perf-item">
+                                <div class="perf-item-label">
+                                    <span class="perf-tier-badge tier2-badge">档位2</span>
+                                    <span class="perf-calc">${analysisResults.tierStats.tier2.count}单 × ¥${TIER_CONFIG.tier2.salesPerformance}</span>
+                                </div>
+                                <div class="perf-item-value">¥${tier2SalesPerf.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="perf-card-footer perf-footer-sales">
+                            <span>总额</span>
+                            <span class="perf-total-amount">¥${totalSalesPerf.toFixed(2)}</span>
+                        </div>
                     </div>
-                    <div class="performance-section assistant-performance">
-                        <div class="performance-title">👔 助理绩效</div>
-                        <div class="performance-breakdown">
-                            <div class="performance-item-small">
-                                <span>档位2 (${analysisResults.tierStats.tier2.count}单 × ¥${TIER_CONFIG.tier2.assistantPerformance})</span>
-                                <strong>¥${tier2AssistantPerf.toFixed(2)}</strong>
+
+                    <!-- 助理绩效卡片 -->
+                    <div class="perf-card perf-card-assistant">
+                        <div class="perf-card-header">
+                            <div class="perf-icon-wrapper perf-icon-assistant">
+                                <i class="fas fa-user-tie"></i>
                             </div>
-                            <div class="performance-subtotal">
-                                <span>助理绩效总额</span>
-                                <strong class="assistant-total">¥${tier2AssistantPerf.toFixed(2)}</strong>
+                            <div class="perf-header-text">
+                                <h3>助理绩效</h3>
+                                <p>Assistant Performance</p>
                             </div>
+                        </div>
+                        <div class="perf-card-body">
+                            <div class="perf-item">
+                                <div class="perf-item-label">
+                                    <span class="perf-tier-badge tier2-badge">档位2</span>
+                                    <span class="perf-calc">${analysisResults.tierStats.tier2.count}单 × ¥${TIER_CONFIG.tier2.assistantPerformance}</span>
+                                </div>
+                                <div class="perf-item-value">¥${tier2AssistantPerf.toFixed(2)}</div>
+                            </div>
+                            <div class="perf-item perf-item-note">
+                                <div class="perf-note">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>仅档位2订单享有助理绩效</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="perf-card-footer perf-footer-assistant">
+                            <span>总额</span>
+                            <span class="perf-total-amount">¥${tier2AssistantPerf.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
