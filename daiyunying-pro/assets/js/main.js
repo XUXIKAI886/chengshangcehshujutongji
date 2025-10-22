@@ -232,8 +232,18 @@ function startAnalysis() {
 
 // 档位配置
 const TIER_CONFIG = {
-    tier1: { amount: 33.95, name: '档位1 (35元-1.05元抽佣)', performance: 7 },
-    tier2: { amount: 36.86, name: '档位2 (38元-1.14元抽佣)', performance: 7 }
+    tier1: {
+        amount: 33.95,
+        name: '档位1 (35元-1.05元抽佣)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 0   // 助理绩效：0元/单
+    },
+    tier2: {
+        amount: 36.86,
+        name: '档位2 (38元-1.14元抽佣)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 3   // 助理绩效：3元/单
+    }
 };
 
 // 识别档位
@@ -450,7 +460,7 @@ function updateResultsTable(results) {
     resultsContainer.innerHTML = tableHTML;
 }
 
-// 计算绩效（支持多档位）
+// 计算绩效（支持销售和助理绩效）
 function calculatePerformance() {
     if (!analysisResults) {
         console.log('❌ calculatePerformance: analysisResults为空');
@@ -460,24 +470,24 @@ function calculatePerformance() {
     // 计算总订单数
     const totalOrders = analysisResults.details.reduce((sum, item) => sum + item.orderCount, 0);
 
-    // 按档位计算绩效
-    const tier1Performance = analysisResults.tierStats.tier1.count * TIER_CONFIG.tier1.performance;
-    const tier2Performance = analysisResults.tierStats.tier2.count * TIER_CONFIG.tier2.performance;
-    const totalPerformance = tier1Performance + tier2Performance;
+    // 销售绩效计算
+    const tier1SalesPerf = analysisResults.tierStats.tier1.count * TIER_CONFIG.tier1.salesPerformance;
+    const tier2SalesPerf = analysisResults.tierStats.tier2.count * TIER_CONFIG.tier2.salesPerformance;
+    const totalSalesPerf = tier1SalesPerf + tier2SalesPerf;
+
+    // 助理绩效计算（只有档位2有助理绩效）
+    const tier2AssistantPerf = analysisResults.tierStats.tier2.count * TIER_CONFIG.tier2.assistantPerformance;
 
     console.log('📊 绩效计算:', {
-        tier1: {
-            count: analysisResults.tierStats.tier1.count,
-            performance: TIER_CONFIG.tier1.performance,
-            total: tier1Performance
+        销售绩效: {
+            档位1: { count: analysisResults.tierStats.tier1.count, rate: TIER_CONFIG.tier1.salesPerformance, total: tier1SalesPerf },
+            档位2: { count: analysisResults.tierStats.tier2.count, rate: TIER_CONFIG.tier2.salesPerformance, total: tier2SalesPerf },
+            总计: totalSalesPerf
         },
-        tier2: {
-            count: analysisResults.tierStats.tier2.count,
-            performance: TIER_CONFIG.tier2.performance,
-            total: tier2Performance
+        助理绩效: {
+            档位2: { count: analysisResults.tierStats.tier2.count, rate: TIER_CONFIG.tier2.assistantPerformance, total: tier2AssistantPerf }
         },
         totalOrders,
-        totalPerformance,
         totalOrdersDisplay: totalOrdersDisplay ? '已找到' : '未找到'
     });
 
@@ -490,8 +500,42 @@ function calculatePerformance() {
         }
 
         if (performanceAmount) {
-            performanceAmount.textContent = `¥${totalPerformance.toFixed(2)}`;
-            console.log('✅ 绩效金额已更新:', performanceAmount.textContent);
+            // 更新为详细的绩效展示
+            performanceAmount.innerHTML = `
+                <div class="performance-detail">
+                    <div class="performance-section sales-performance">
+                        <div class="performance-title">💼 销售绩效</div>
+                        <div class="performance-breakdown">
+                            <div class="performance-item-small">
+                                <span>档位1 (${analysisResults.tierStats.tier1.count}单 × ¥${TIER_CONFIG.tier1.salesPerformance})</span>
+                                <strong>¥${tier1SalesPerf.toFixed(2)}</strong>
+                            </div>
+                            <div class="performance-item-small">
+                                <span>档位2 (${analysisResults.tierStats.tier2.count}单 × ¥${TIER_CONFIG.tier2.salesPerformance})</span>
+                                <strong>¥${tier2SalesPerf.toFixed(2)}</strong>
+                            </div>
+                            <div class="performance-subtotal">
+                                <span>销售绩效总额</span>
+                                <strong class="sales-total">¥${totalSalesPerf.toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="performance-section assistant-performance">
+                        <div class="performance-title">👔 助理绩效</div>
+                        <div class="performance-breakdown">
+                            <div class="performance-item-small">
+                                <span>档位2 (${analysisResults.tierStats.tier2.count}单 × ¥${TIER_CONFIG.tier2.assistantPerformance})</span>
+                                <strong>¥${tier2AssistantPerf.toFixed(2)}</strong>
+                            </div>
+                            <div class="performance-subtotal">
+                                <span>助理绩效总额</span>
+                                <strong class="assistant-total">¥${tier2AssistantPerf.toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            console.log('✅ 绩效金额已更新: 销售=¥' + totalSalesPerf.toFixed(2) + ', 助理=¥' + tier2AssistantPerf.toFixed(2));
         } else {
             console.error('❌ performanceAmount元素未找到');
         }
@@ -680,10 +724,15 @@ function exportReport() {
             '状态': ''
         });
 
+        // 销售绩效
+        const tier1SalesPerf = analysisResults.tierStats.tier1.count * TIER_CONFIG.tier1.salesPerformance;
+        const tier2SalesPerf = analysisResults.tierStats.tier2.count * TIER_CONFIG.tier2.salesPerformance;
+        const totalSalesPerf = tier1SalesPerf + tier2SalesPerf;
+
         exportData.push({
             '合同开始时间': '',
-            '门店ID': `档位1绩效 (¥${TIER_CONFIG.tier1.performance}/单)`,
-            '商家名称': `¥${tier1Performance.toFixed(2)}`,
+            '门店ID': '💼 销售绩效',
+            '商家名称': '',
             '结算金额': '',
             '档位': '',
             '订单数': '',
@@ -693,8 +742,44 @@ function exportReport() {
 
         exportData.push({
             '合同开始时间': '',
-            '门店ID': `档位2绩效 (¥${TIER_CONFIG.tier2.performance}/单)`,
-            '商家名称': `¥${tier2Performance.toFixed(2)}`,
+            '门店ID': `  档位1 (¥${TIER_CONFIG.tier1.salesPerformance}/单)`,
+            '商家名称': `${analysisResults.tierStats.tier1.count}单`,
+            '结算金额': `¥${tier1SalesPerf.toFixed(2)}`,
+            '档位': '',
+            '订单数': '',
+            '记录数': '',
+            '状态': ''
+        });
+
+        exportData.push({
+            '合同开始时间': '',
+            '门店ID': `  档位2 (¥${TIER_CONFIG.tier2.salesPerformance}/单)`,
+            '商家名称': `${analysisResults.tierStats.tier2.count}单`,
+            '结算金额': `¥${tier2SalesPerf.toFixed(2)}`,
+            '档位': '',
+            '订单数': '',
+            '记录数': '',
+            '状态': ''
+        });
+
+        exportData.push({
+            '合同开始时间': '',
+            '门店ID': '  销售绩效总额',
+            '商家名称': '',
+            '结算金额': `¥${totalSalesPerf.toFixed(2)}`,
+            '档位': '',
+            '订单数': '',
+            '记录数': '',
+            '状态': ''
+        });
+
+        // 助理绩效
+        const tier2AssistantPerf = analysisResults.tierStats.tier2.count * TIER_CONFIG.tier2.assistantPerformance;
+
+        exportData.push({
+            '合同开始时间': '',
+            '门店ID': '',
+            '商家名称': '',
             '结算金额': '',
             '档位': '',
             '订单数': '',
@@ -704,9 +789,31 @@ function exportReport() {
 
         exportData.push({
             '合同开始时间': '',
-            '门店ID': '总绩效金额',
-            '商家名称': `¥${totalPerformance.toFixed(2)}`,
+            '门店ID': '👔 助理绩效',
+            '商家名称': '',
             '结算金额': '',
+            '档位': '',
+            '订单数': '',
+            '记录数': '',
+            '状态': ''
+        });
+
+        exportData.push({
+            '合同开始时间': '',
+            '门店ID': `  档位2 (¥${TIER_CONFIG.tier2.assistantPerformance}/单)`,
+            '商家名称': `${analysisResults.tierStats.tier2.count}单`,
+            '结算金额': `¥${tier2AssistantPerf.toFixed(2)}`,
+            '档位': '',
+            '订单数': '',
+            '记录数': '',
+            '状态': ''
+        });
+
+        exportData.push({
+            '合同开始时间': '',
+            '门店ID': '  助理绩效总额',
+            '商家名称': '',
+            '结算金额': `¥${tier2AssistantPerf.toFixed(2)}`,
             '档位': '',
             '订单数': '',
             '记录数': '',
