@@ -360,9 +360,9 @@ function analyzeStoreData(data, storeIdList) {
             tierName = TIER_CONFIG[tier].name;
             results.tierStats[tier].count += 1;
             results.tierStats[tier].amount += amount;
-            console.log(📊 门店统计: 记录数=, 总金额=￥, 订单数=, 档位= ✓);
+            console.log(`📊 门店${storeId}统计: 记录数=${recordCount}, 总金额=￥${amount.toFixed(2)}, 订单数=${orderCount}, 档位=${TIER_CONFIG[tier].label} ✓`);
         } else {
-            console.log(⚠️ 门店统计: 记录数=, 总金额=￥, 订单数=, 档位=未知 (不符合));
+            console.log(`⚠️ 门店${storeId}统计: 记录数=${recordCount}, 总金额=￥${amount.toFixed(2)}, 订单数=${orderCount}, 档位=未知 (不符合${TIER_AMOUNT_HINT})`);
         }
 
         results.foundStores.push(storeId);
@@ -391,7 +391,7 @@ function analyzeStoreData(data, storeIdList) {
     console.log(`总结算周期数: ${results.totalDays}`);
     console.log(`结算金额汇总: ¥${results.totalAmount.toFixed(2)}`);
     TIER_KEYS.forEach(tierKey => {
-        console.log(${TIER_CONFIG[tierKey].label}订单数: 单, 金额: ￥);
+        console.log(`${TIER_CONFIG[tierKey].label}订单数: ${results.tierStats[tierKey].count}单, 金额: ￥${results.tierStats[tierKey].amount.toFixed(2)}`);
     });
 
     return results;
