@@ -481,27 +481,29 @@ function calculatePerformance() {
     // 计算总订单数和档位明细
     const totalOrders = analysisResults.details.reduce((sum, item) => sum + item.orderCount, 0);
     const salesDetails = TIER_KEYS.map(tierKey => {
-        const tierStats = analysisResults.tierStats[tierKey] || { count: 0 };
+        const tierStats = analysisResults.tierStats[tierKey] || { count: 0, amount: 0 };
         const tierConfig = TIER_CONFIG[tierKey];
         return {
             tierKey,
             label: tierConfig.label,
             count: tierStats.count,
             rate: tierConfig.salesPerformance,
-            amount: tierStats.count * tierConfig.salesPerformance
+            amount: tierStats.count * tierConfig.salesPerformance,
+            settlementAmount: tierStats.amount || 0
         };
     });
     const assistantDetails = TIER_KEYS
         .filter(tierKey => TIER_CONFIG[tierKey].assistantPerformance > 0)
         .map(tierKey => {
-            const tierStats = analysisResults.tierStats[tierKey] || { count: 0 };
+            const tierStats = analysisResults.tierStats[tierKey] || { count: 0, amount: 0 };
             const tierConfig = TIER_CONFIG[tierKey];
             return {
                 tierKey,
                 label: tierConfig.label,
                 count: tierStats.count,
                 rate: tierConfig.assistantPerformance,
-                amount: tierStats.count * tierConfig.assistantPerformance
+                amount: tierStats.count * tierConfig.assistantPerformance,
+                settlementAmount: tierStats.amount || 0
             };
         });
 
@@ -511,11 +513,11 @@ function calculatePerformance() {
 
     const salesLog = {};
     salesDetails.forEach(detail => {
-        salesLog[detail.label] = { count: detail.count, rate: detail.rate, total: detail.amount };
+        salesLog[detail.label] = { count: detail.count, rate: detail.rate, total: detail.amount, settlement: detail.settlementAmount };
     });
     const assistantLog = {};
     assistantDetails.forEach(detail => {
-        assistantLog[detail.label] = { count: detail.count, rate: detail.rate, total: detail.amount };
+        assistantLog[detail.label] = { count: detail.count, rate: detail.rate, total: detail.amount, settlement: detail.settlementAmount };
     });
 
     console.log('📊 绩效计算:', {
@@ -541,6 +543,7 @@ function calculatePerformance() {
                                     <span class="perf-calc">${detail.count}单 × ￥${detail.rate}</span>
                                 </div>
                                 <div class="perf-item-value">￥${detail.amount.toFixed(2)}</div>
+                                <div class="perf-extra">结算金额：￥${detail.settlementAmount.toFixed(2)}</div>
                             </div>
                         `).join('');
 
@@ -551,6 +554,7 @@ function calculatePerformance() {
                                     <span class="perf-calc">${detail.count}单 × ￥${detail.rate}</span>
                                 </div>
                                 <div class="perf-item-value">￥${detail.amount.toFixed(2)}</div>
+                                <div class="perf-extra">结算金额：￥${detail.settlementAmount.toFixed(2)}</div>
                             </div>
                         `).join('')) || '';
             const assistantNoteText = assistantDetails.length > 0
@@ -591,7 +595,7 @@ function calculatePerformance() {
                             </div>
                         </div>
                         <div class="perf-card-body">
-                            ${assistantItemsHTML || '<div class="perf-item"><div class="perf-item-label"><span class="perf-calc">暂无助理绩效数据</span></div><div class="perf-item-value">￥0.00</div></div>'}
+                            ${assistantItemsHTML || '<div class="perf-item"><div class="perf-item-label"><span class="perf-calc">暂无助理绩效数据</span></div><div class="perf-item-value">￥0.00</div><div class="perf-extra">结算金额：￥0.00</div></div>'}
                             <div class="perf-item perf-item-note">
                                 <div class="perf-note">
                                     <i class="fas fa-info-circle"></i>

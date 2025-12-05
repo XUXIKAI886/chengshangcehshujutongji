@@ -796,6 +796,14 @@ body {
     font-family: 'Courier New', monospace;
 }
 
+.perf-extra {
+    font-size: 12px;
+    color: #6c757d;
+    text-align: right;
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+}
+
 /* 提示信息 */
 .perf-item-note {
     padding: 10px 0 0 0;
