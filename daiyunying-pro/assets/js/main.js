@@ -230,7 +230,7 @@ function startAnalysis() {
     showMessage(`分析完成！找到${analysisResults.foundStores.length}个门店的数据`, 'success');
 }
 
-// 档位配置
+// 档位配置 - 支持8个档位（按结算金额从小到大排序）
 const TIER_CONFIG = {
     tier1: {
         label: '档位1',
@@ -248,8 +248,43 @@ const TIER_CONFIG = {
     },
     tier3: {
         label: '档位3',
+        amount: 38.0,
+        name: '档位3 (38元净结算)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 3   // 助理绩效：3元/单
+    },
+    tier4: {
+        label: '档位4',
+        amount: 40.0,
+        name: '档位4 (40元净结算)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 3   // 助理绩效：3元/单
+    },
+    tier5: {
+        label: '档位5',
         amount: 48.5,
-        name: '档位3 (48.50元)',
+        name: '档位5 (48.50元)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 3   // 助理绩效：3元/单
+    },
+    tier6: {
+        label: '档位6',
+        amount: 50.0,
+        name: '档位6 (50元净结算)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 3   // 助理绩效：3元/单
+    },
+    tier7: {
+        label: '档位7',
+        amount: 88.0,
+        name: '档位7 (88元净结算)',
+        salesPerformance: 7,      // 销售绩效：7元/单
+        assistantPerformance: 3   // 助理绩效：3元/单
+    },
+    tier8: {
+        label: '档位8',
+        amount: 199.0,
+        name: '档位8 (199元净结算)',
         salesPerformance: 7,      // 销售绩效：7元/单
         assistantPerformance: 3   // 助理绩效：3元/单
     }
